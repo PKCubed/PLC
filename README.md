@@ -10,4 +10,4 @@ Written in Python using Pygame-CE
 - Number variables
 
 ### Demonstration Video:
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/NxRdQFMx3ew/0.jpg)](https://www.youtube.com/watch?v=NxRdQFMx3ew)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/ws9uSAPO2gg/0.jpg)](https://www.youtube.com/watch?v=ws9uSAPO2gg)
