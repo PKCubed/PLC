@@ -1,6 +1,6 @@
 # PLC
 PLC Programmable Logic Controller Software
-Written in Python using Pygame
+Written in Python using Pygame-CE
 
 ### New Feature Ideas
 - Save and Load files
