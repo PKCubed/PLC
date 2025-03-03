@@ -111,6 +111,9 @@ while running:
         if node.connection:
             if node.connection.deleted:
                 node.connection = None
+        if node.connection_2:
+            if node.connection_2.deleted:
+                node.connection_2 = None
 
     # Event handling
     for event in pygame.event.get():
