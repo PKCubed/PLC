@@ -71,9 +71,6 @@ class GraphicNode:
             if self.type == 3:
                 self.connect_in_point = (self.rect.left+2, self.rect.centery)
                 self.connect_out_point = (self.rect.right-2, self.rect.centery)
-                if self.timer_type == 3: # Clock
-                    self.connection = None
-                    self.value = int(time.time()/self.duration%2)
             elif self.type == 4:
                 self.connect_in_point = (self.rect.left+2, self.rect.centery)
                 self.connect_out_point = (self.rect.right-2, self.rect.centery)
@@ -86,6 +83,16 @@ class GraphicNode:
             else:
                 self.connect_in_point = self.rect.center
                 self.connect_out_point = self.rect.center
+        else:
+            self.rect = self.pos
+    
+    def process(self, pos=None): # update the values of each node. this should be done outside of the pygame thread to optimize speed and eliminate problems like pauses when resizing the window
+        if not self.bar:
+            if self.type == 3:
+                if self.timer_type == 3: # Clock
+                    self.connection = None
+                    if self.duration:
+                        self.value = int(time.time()/self.duration%2)
             if self.connection:
                 if self.type==3:
                     if self.timer_type == 0: # Delay
@@ -128,8 +135,6 @@ class GraphicNode:
                         elif self.connection_2:
                             self.value = self.connection_2
                         """
-        else:
-            self.rect = self.pos
     
     def draw(self):
         if self.type == 1: # 1 = Digital Input
