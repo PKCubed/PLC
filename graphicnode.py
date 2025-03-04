@@ -1,6 +1,7 @@
 import pygame
 import time
 from icons import *
+from pyModbusTCP.client import ModbusClient
 
 def format_duration(duration):
     return str(duration) + "s"
@@ -22,6 +23,7 @@ class GraphicNode:
         self.screen = screen
         self.type = type
         self.value = 0
+        self.old_value = self.value
         self.connection = None
         self.connection_2 = None
         self.width = 0
@@ -29,6 +31,10 @@ class GraphicNode:
         self.duration = None
         self.timer_type = None 
         self.timer = None
+        self.ip_address = "0.0.0.0"
+        self.old_ip_address = self.ip_address
+        self.modbus_address = 0
+        self.old_modbus_address = self.modbus_address
         if self.type == 1: # Digital Input
             self.width = 40
             self.height = 40
@@ -64,6 +70,7 @@ class GraphicNode:
         self.smallfont.set_bold(True)
         self.deleted = False
         self.label = ""
+        self.modbus_connection = None
 
     def update(self, pos=None): # pos is the xy position of the movable page
         if not self.bar:
@@ -86,6 +93,12 @@ class GraphicNode:
         else:
             self.rect = self.pos
     
+    def init_connection(self):
+        self.modbus_connection = ModbusClient(host=self.ip_address, port=502, auto_open=True)
+        if self.modbus_address:
+            self.modbus_connection.write_single_coil(self.modbus_address, self.value)
+            self.old_value = self.value
+
     def process(self, pos=None): # update the values of each node. this should be done outside of the pygame thread to optimize speed and eliminate problems like pauses when resizing the window
         if not self.bar:
             if self.type == 3:
@@ -135,6 +148,18 @@ class GraphicNode:
                         elif self.connection_2:
                             self.value = self.connection_2
                         """
+            if self.type == 2:
+                if self.ip_address != self.old_ip_address:
+                    self.init_connection()
+                    self.old_ip_address = self.ip_address
+                if self.modbus_address != self.old_modbus_address:
+                    self.old_modbus_address = self.modbus_address
+                if self.modbus_connection:
+                    if self.value != self.old_value:
+                        if self.modbus_address:
+                            self.modbus_connection.write_single_coil(self.modbus_address, self.value)
+                            self.old_value = self.value
+
     
     def draw(self):
         if self.type == 1: # 1 = Digital Input

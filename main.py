@@ -6,6 +6,7 @@ from button import Button
 from graphicnode import GraphicNode
 from icons import *
 import threading
+import re
 
 nodes = []
 
@@ -15,7 +16,12 @@ menu = None
 
 running = True
 
-
+def is_valid_ip(ip_address):
+    regex = "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
+    if(re.search(regex, ip_address)):
+        return True
+    else:
+        return False
 
 def pygame_loop(): # Main Pygame Loop
     global running
@@ -66,6 +72,10 @@ def pygame_loop(): # Main Pygame Loop
         node_subtype_entry.kill()
         node_subtype_entry.disable()
         node_subtype_label.visible=False
+        node_ip_address_entry.visible=False
+        node_ip_address_label.visible=False
+        node_modbus_address_entry.visible=False
+        node_modbus_address_label.visible=False
         menu = None
 
     barnodes = [GraphicNode(screen, 1, (255,5), bar=True), GraphicNode(screen, 2, (300,5), bar=True), GraphicNode(screen, 3, (345,5), bar=True), GraphicNode(screen, 4, (430,5), bar=True), GraphicNode(screen, 5, (475,5), bar=True)]
@@ -103,6 +113,12 @@ def pygame_loop(): # Main Pygame Loop
     node_subtype_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect((50, 50), (50, 30)), text="Type", manager=MANAGER, object_id="#node_subtype_label", visible=False)
     node_subtype_entry = pygame_gui.elements.UIDropDownMenu(options_list=[""], starting_option="", relative_rect=pygame.Rect((50, 50), (150, 30)), manager=MANAGER, object_id="#node_subtype_entry", visible=False)
 
+    node_ip_address_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect((50, 50), (90, 30)), text="IP Address", manager=MANAGER, object_id="#node_ip_address_label", visible=False)
+    node_ip_address_entry = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((50, 50), (110, 30)), manager=MANAGER, object_id="#node_ip_address_entry", visible=False)
+
+    node_modbus_address_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect((50, 50), (135, 30)), text="Modbus Address", manager=MANAGER, object_id="#node_modbus_address_label", visible=False)
+    node_modbus_address_entry = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((50, 50), (65, 30)), manager=MANAGER, object_id="#node_modbus_address_entry", visible=False)
+
     CLOCK = pygame.time.Clock()
     
 
@@ -129,6 +145,11 @@ def pygame_loop(): # Main Pygame Loop
                             menu.duration = float(node_duration_entry.get_text())
                         except Exception:
                             pass
+                    if menu.type == 2:
+                        if is_valid_ip(node_ip_address_entry.get_text()):
+                            menu.ip_address = node_ip_address_entry.get_text()
+                        if node_modbus_address_entry.get_text().isdigit:
+                            menu.modbus_address = int(node_modbus_address_entry.get_text())
             if event.type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
                 if menu:
                     if menu.type == 3:
@@ -205,7 +226,10 @@ def pygame_loop(): # Main Pygame Loop
                                             menu = node
                                             node_label_entry.set_text(menu.label)
                                             node_duration_entry.set_text(str(menu.duration))
-                                            if node.type == 3:
+                                            if node.type == 2:
+                                                node_ip_address_entry.set_text(menu.ip_address)
+                                                node_modbus_address_entry.set_text(str(menu.modbus_address))
+                                            elif node.type == 3:
                                                 if node.timer_type == 0: # Delay
                                                     starting_option = ("Delay", "0")
                                                 elif node.timer_type == 1: # On-Delay
@@ -341,6 +365,14 @@ def pygame_loop(): # Main Pygame Loop
                 node_type_label.set_text("Digital Input")
             if menu.type == 2:
                 node_type_label.set_text("Digital Output")
+                node_ip_address_label.set_position(pygame.Rect(menu_rect.left, menu_rect.top+60, 90, 30))
+                node_ip_address_entry.set_position(pygame.Rect(menu_rect.left+90, menu_rect.top+60, menu_rect.width-90, 30))
+                node_ip_address_entry.visible=True
+                node_ip_address_label.visible=True
+                node_modbus_address_label.set_position(pygame.Rect(menu_rect.left, menu_rect.top+90, 135, 30))
+                node_modbus_address_entry.set_position(pygame.Rect(menu_rect.left+135, menu_rect.top+90, menu_rect.width-135, 30))
+                node_modbus_address_entry.visible=True
+                node_modbus_address_label.visible=True
             if menu.type == 3:
                 node_type_label.set_text("Timer")
                 node_duration_entry.set_position(pygame.Rect(menu_rect.left+100, menu_rect.top+60, menu_rect.width-100, 30))
